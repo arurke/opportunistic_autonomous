@@ -1,0 +1,245 @@
+%%%% Macros which draws slotframes %%%%
+\ProvidesPackage{slotframe}
+
+% Function which makes a string of cells, first parameter is the current cell number, second is if include N-cell
+\newcommand{\rowofcellsDaisy}[2]{%
+    \pgfmathtruncatemacro{\currentcell}{#1};
+    \pgfmathtruncatemacro{\lastcell}{\numCells - 1};
+    % Total number of cells
+    \ifnum#2=1
+    \pgfmathtruncatemacro{\totalNumCells}{\numCells + 3};
+    \else
+    \pgfmathtruncatemacro{\totalNumCells}{\numCells + 2};
+    \fi
+
+    % Last cell
+    \ifnum#2=1
+    \layerNumCalc
+    \filldraw[fill=\cellColor{\layerNum}, draw=black] (\offsetX + \currentcell * \width, \offsetY) rectangle node {\cellTextN} (\offsetX + \width + \currentcell * \width, \offsetY + \width);
+    \pgfmathsetmacro{\currentcell}{\currentcell + 1};
+    \fi
+
+    % Dotted extra-wide cells
+    \layerNumCalc
+    \filldraw[fill=\cellColor{\layerNum}, draw=black] (\offsetX + \currentcell * \width, \offsetY) rectangle node { . . . } (\offsetX + \width + \currentcell * \width + \width, \offsetY + \width);
+    \pgfmathsetmacro{\currentcell}{\currentcell + 2};
+
+    % Series of cells
+    \foreach \i in {0,...,\lastcell}
+    {
+        \pgfmathsetmacro{\currentcell}{\currentcell + \i};
+        \pgfmathtruncatemacro{\cellNum}{\lastcell - \i + 1};
+        \pgfmathsetmacro{\relposX}{\currentcell * \width};
+        \layerNumCalc
+        \filldraw[fill=\cellColor{\layerNum}, draw=black] (\offsetX + \relposX, \offsetY) rectangle node {\cellTextNum{\layerNum}{\cellNum}} (\offsetX + \width + \relposX, \offsetY + \width);
+    }
+    \pgfmathsetmacro{\currentcell}{\currentcell + \numCells};
+}
+
+% Function which makes a string of cells, first parameter is the current cell number, second is if include N-cell
+\newcommand{\rowofcells}[2]{%
+    \pgfmathtruncatemacro{\currentcell}{#1};
+    \pgfmathtruncatemacro{\lastcell}{\numCells - 1};
+    % Total number of cells
+    \ifnum#2=1
+    \pgfmathtruncatemacro{\totalNumCells}{\numCells + 3};
+    \else
+    \pgfmathtruncatemacro{\totalNumCells}{\numCells + 2};
+    \fi
+
+    % Series of cells
+    \foreach \i in {0,...,\lastcell}
+    {
+        \pgfmathsetmacro{\currentcell}{\currentcell + \i};
+        \pgfmathtruncatemacro{\cellNum}{\i + 1};
+        \pgfmathsetmacro{\relposX}{\currentcell * \width};
+        \layerNumCalc
+        \filldraw[fill=\cellColor{\layerNum}, draw=black] (\offsetX + \relposX, \offsetY) rectangle node {\cellTextNum{\layerNum}{\cellNum}} (\offsetX + \width + \relposX, \offsetY + \width);
+    }
+    \pgfmathsetmacro{\currentcell}{\currentcell + \numCells};
+
+    % Dotted extra-wide cells
+    %    \ifnum#2=1
+    \layerNumCalc
+    \filldraw[fill=\cellColor{\layerNum}, draw=black] (\offsetX + \currentcell * \width, \offsetY) rectangle node { . . . } (\offsetX + \width + \currentcell * \width + \width, \offsetY + \width);
+    %    \else
+    %        \filldraw[fill=gray!30, draw=black] (\offsetX + \currentcell * \width, \offsetY) rectangle node { . . . } (\offsetX + \width + \currentcell * \width + \width, \offsetY + \width);
+    %    \fi
+    \pgfmathsetmacro{\currentcell}{\currentcell + 2};
+
+    % Last cell
+    \ifnum#2=1
+    \layerNumCalc
+    \filldraw[fill=\cellColor{\layerNum}, draw=black] (\offsetX + \currentcell * \width, \offsetY) rectangle node {\cellTextN} (\offsetX + \width + \currentcell * \width, \offsetY + \width);
+    \pgfmathsetmacro{\currentcell}{\currentcell + 1};
+    \fi
+}
+
+% Colors, from http://latexcolor.com/
+\definecolor{vermilion}{rgb}{0.89, 0.26, 0.2}
+\definecolor{dollarbill}{rgb}{0.52, 0.73, 0.4}
+\definecolor{golden}{rgb}{1.0, 0.84, 0.0}
+\definecolor{unitednationsblue}{rgb}{0.36, 0.57, 0.9}
+\newcommand{\rankOneColor}{unitednationsblue!75}
+\newcommand{\rankTwoColor}{golden!75}
+\newcommand{\rankThreeColor}{dollarbill!75}
+\newcommand{\rankOneColorVague}{unitednationsblue!35}
+\newcommand{\rankTwoColorVague}{golden!35}
+\newcommand{\rankThreeColorVague}{dollarbill!35}
+\newcommand{\rankOneColorStrong}{unitednationsblue!120}
+\newcommand{\rankTwoColorStrong}{golden!120}
+\newcommand{\rankThreeColorStrong}{dollarbill!120}
+
+\colorlet{color999}{lightgray}
+\colorlet{color0}{white}
+%\colorlet{color1}{\rankThreeColorStrong}
+%\colorlet{color2}{\rankTwoColorStrong}
+%\colorlet{color3}{\rankOneColorStrong}
+%\colorlet{color4}{\rankThreeColor}
+%\colorlet{color5}{\rankTwoColor}
+%\colorlet{color6}{\rankOneColor}
+%\colorlet{color7}{\rankThreeColorVague}
+%\colorlet{color8}{\rankTwoColorVague}
+%\colorlet{color9}{\rankOneColorVague}
+\colorlet{color1}{\rankThreeColor}
+\colorlet{color2}{\rankTwoColor}
+\colorlet{color3}{\rankOneColor}
+\colorlet{color4}{\rankThreeColor}
+\colorlet{color5}{\rankTwoColor}
+\colorlet{color6}{\rankOneColor}
+\colorlet{color7}{\rankThreeColor}
+\colorlet{color8}{\rankTwoColor}
+\colorlet{color9}{\rankOneColor}
+
+% Draws barebone slotframe based on matrix, inspiration: https://tex.stackexchange.com/questions/271577/how-can-i-fill-the-grid-cell-with-color-in-this-grid/271584
+% Parameters: color-matrix, text-matrix, num columns, num rows, xCellScale, yCellScale, print-ranks, left-text, print dashed lines
+\newcommand{\slotframeMatrix}[9]{
+    \scriptsize
+    % Plenty of confusion here because array use first parameter for row (y)
+    % while positioning (drawing stuff) uses first parameter for column (x)
+    % TODO wth have I done here...
+    \pgfmathtruncatemacro{\yArrLen}{#3}
+    \pgfmathtruncatemacro{\xArrLen}{#4}
+
+    \pgfmathtruncatemacro{\xNum}{\yArrLen - 1}
+    \pgfmathtruncatemacro{\yNum}{\xArrLen - 1}
+
+    \pgfmathsetmacro{\cellScaleX}{#5}
+    \pgfmathsetmacro{\cellScaleY}{#6}
+
+    % Regular cell
+    \tikzset{cell/.style={rectangle,draw=black,thick, minimum width=1cm * \cellScaleX, minimum height=1cm * \cellScaleY}}
+
+    % Dotted cell
+    \tikzset{gapcell/.style={rectangle,draw=black,thick,dashed,minimum width=1cm * \cellScaleX, minimum height=1cm * \cellScaleY}}
+
+    \foreach \x [count=\yArr from 0] in {0,...,\xNum}{
+        \foreach \y [count=\xArr from 0] in {0,...,-\yNum}{
+            \pgfmathsetmacro{\xPos}{\x * \cellScaleX}
+            \pgfmathsetmacro{\yPos}{\y * \cellScaleY}
+            \pgfmathsetmacro{\bit}{#1[mod(\xArr,\xArrLen)][mod(\yArr,\yArrLen)]}
+            % Add text to cells if there is a text-array
+            \ifthenelse{\equal{#2}{}}
+            {
+                % If the add-rank-argument is set we add rank numbering in first column
+                \ifthenelse{\equal{#7}{1}}
+                {% Add rank number if first column
+                    \ifthenelse{\equal{\x}{0}}
+                    {\pgfmathtruncatemacro{\text}{\xArr + 1}}
+                    {\pgfmathsetmacro{\text}{}}}
+                {\pgfmathsetmacro{\text}{}};
+            }
+            % Otherwise use from array
+            {\pgfmathsetmacro{\text}{#2[mod(\xArr,\xArrLen)][mod(\yArr,\yArrLen)]}};
+
+            % If 99, it is a gap-cell
+            \ifthenelse{\bit = 50}
+            {\node[gapcell] at (\xPos,\yPos){}}
+            {
+                % Add pattern
+                \def\pattern{none}
+                \ifthenelse{\bit > 3 \AND \bit < 7}{\def\pattern{north east lines}}{}
+                \ifthenelse{\bit > 6 \AND \bit < 10}{\def\pattern{north west lines}}{}
+
+                \node[cell, pattern=\pattern, preaction={fill=color\bit}] at (\xPos,\yPos){\text}};
+        }
+    }
+
+    \scriptsize
+    % Add text left of first column
+    \ifthenelse{\equal{#8}{}}
+    {
+    }
+    {
+        \pgfmathsetmacro{\middleRankPosY}{0 - (\xArrLen * \cellScaleY * 0.45)};
+        \node[rotate=90] at (-0.4, \middleRankPosY) {#8};
+    };
+
+    % Add dashed lines at end
+    \ifthenelse{\equal{#9}{1}}
+    {
+        \pgfmathsetmacro{\topOfcellX}{\cellScaleX * 0.5};
+        \draw[dashed, thick] (\yArrLen * \cellScaleX - \topOfcellX, \topOfcellX) -- (\yArrLen * \cellScaleX - \topOfcellX + 1.1 * \cellScaleX, \topOfcellX);
+        \draw[dashed, thick] (\yArrLen * \cellScaleX - \topOfcellX, \topOfcellX - \xArrLen * \cellScaleY) -- (\yArrLen * \cellScaleX - \topOfcellX + 1.1 * \cellScaleX,  \topOfcellX - \xArrLen * \cellScaleY);
+    }
+    {};
+}
+
+
+%%%%% Usage example of \rowofcellsDaisy:
+%\begin{figure*}[h]
+%	\centering
+%	\usetikzlibrary{shapes,snakes}
+%	\usetikzlibrary{trees,arrows, backgrounds}
+%	\begin{tikzpicture}[edge from parent/.style={draw,-latex}, scale=1.0, edge from parent path={[<-](\tikzparentnode) -- (\tikzchildnode)}, , node distance=1.5cm]
+%
+%	\tikzset{rank1/.style={circle, fill=\rankThreeColor, draw}}
+%	\tikzset{rank2/.style={circle, fill=\rankTwoColor, draw}}
+%	\tikzset{rank3/.style={circle, fill=\rankOneColor, draw}}
+%
+%	\node [regular polygon, regular polygon sides=3, scale=0.7, draw, fill=gray!30] (sink) {Sink}
+%	child {node [rank1, right of=sink] (q1) {1}
+%		child {node [rank2, right of=q1] (q2) {2}
+%			child {node [rank3, right of=q2] (q3) {3}}}};
+%
+%	\end{tikzpicture}
+%	\begin{tikzpicture} % Slotframe overview
+%	\footnotesize
+%
+%	% Coloring, depends on parameter which is layer number
+%	\newcommand{\cellColor}[1]{\ifnum#1=0 \rankThreeColor\else\ifnum#1=1 \rankTwoColor\else\ifnum#1=2 \rankOneColor\fi\fi\fi}
+%
+%	% Text in cells
+%	\newcommand{\cellTextBase}{TX_}
+%	\newcommand{\cellTextN}{$\cellTextBase n$}
+%	% Text in numbered cells, first parameter is layer num, second is cell num
+%	\newcommand{\cellTextNum}[2]{{$\cellTextBase#2$}}
+%
+%	% Edit these to adjust the string of cells
+%	\pgfmathtruncatemacro{\numCells}{3};
+%	\pgfmathtruncatemacro{\offsetX}{-2};
+%	\pgfmathtruncatemacro{\offsetY}{0};
+%	\pgfmathsetmacro{\width}{0.6};
+%
+%	% Initalize
+%	\pgfmathtruncatemacro{\currentcell}{0}; % Don't edit this
+%
+%	% Calculation of layer number
+%	\newcommand{\layerNumCalc}{\pgfmathparse{\currentcell / \totalNumCells}\pgfmathtruncatemacro\layerNum{\pgfmathresult}}
+%
+%	% Draw cells, currentcell is a global variable updated as rowofcells executes
+%	\rowofcellsDaisy{\currentcell}{1}
+%	\rowofcellsDaisy{\currentcell}{1}
+%	\rowofcellsDaisy{\currentcell}{1}
+%
+%	% Calculate ending cell position
+%	\pgfmathsetmacro{\lastcellendXpos}{\offsetX + \currentcell * \width};
+%
+%	\draw[<-] (\offsetX , -0.2) -- (\lastcellendXpos+1, -0.2) node[midway, below] {Slotframe};
+%
+%	\draw[dashed] (\lastcellendXpos, \offsetY) -- (\lastcellendXpos + 1, \offsetY);
+%	\draw[dashed] (\lastcellendXpos, \offsetY + \width) -- (\lastcellendXpos + 1, \offsetY + \width);
+%	\end{tikzpicture}
+%	\caption{Intuitive solution to funneling effect. Color indicate for which node's traffic the cell belong, number indicates rank}
+%	\label{fig_intuitive_funneling}
+%\end{figure*}

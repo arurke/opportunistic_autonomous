@@ -1,0 +1,235 @@
+%%%% Draw specific slotframes and related %%%%
+
+\ProvidesPackage{drawslotframes}
+
+\newcommand{\drawSlotframeLayeredSimple}[1]{
+\begin{figure}[#1]
+    \begin{tikzpicture}
+    % Matrix, first column is used for index
+    \def\sfcolors{{%
+            {999,0,0,2,50,0,3,2,50}
+    }}
+
+    \def\sftext{{%
+            {0,,,"$3\rightarrow2$",,,"$2\rightarrow S$","$2\rightarrow S$",}
+    }}
+
+    % Draw the SF
+    \slotframeMatrix{\sfcolors}{\sftext}{9}{1}{0.8}{0.3}{0}{}{0}
+
+    % Add surrounding stuff
+    \node[] at (-0.95, 0) {Channel};
+
+    \pgfmathsetmacro{\layY}{0.4}
+    \pgfmathsetmacro{\sfY}{0.8}
+    \pgfmathsetmacro{\layOneXStart}{\cellScaleX - \cellScaleX * \layY - 0.05} % Was a bit skewed, so -0.05
+    \pgfmathsetmacro{\layOneXEnd}{\layOneXStart + 4 * \cellScaleX}
+    \pgfmathsetmacro{\layTwoXEnd}{\layOneXEnd + 4 * \cellScaleX}
+
+    \draw[<->, >=stealth] (\layOneXStart , \sfY) -- (\layTwoXEnd, \sfY) node[midway, above] {Slotframe, 101 timeslots};
+    \draw[<->, >=stealth] (\layOneXStart , \layY) -- (\layOneXEnd, \layY) node[midway, above] {Layer 1};
+    \draw[<->, >=stealth] (\layOneXEnd, \layY) -- (\layTwoXEnd, \layY) node[midway, above] {Layer 2};
+
+    \end{tikzpicture}
+    \caption{Upwards unicast cells in Layered schedule. Color denote from which node the traffic originated. Notation from Figure \ref{fig_simpleTopAndSched}}
+    \label{fig_layered_sched}
+\end{figure}
+}
+
+
+\newcommand{\drawSlotframeLayeredLong}[1]{
+\begin{figure*}[#1]
+    \centering
+    \begin{tikzpicture}
+    % Matrix, first column is used for index
+    \def\sfcolors{{%
+            {999,50,2,1,50,50,2,1,50},
+            {999,50,2,1,50,50,2,1,50}
+    }}
+
+    \def\sftext{{%
+            {0,,"$7\rightarrow6$, $3\rightarrow2$", "$7\rightarrow6$, $3\rightarrow2$" ,50,,"$6\rightarrow5$, $2\rightarrow S$", "$6\rightarrow 5$, $2\rightarrow S$",50},
+            {1,,"$9\rightarrow8$, $5\rightarrow4$", "$5\rightarrow4$", 50,, "$8\rightarrow7$,$4\rightarrow3$", "$8\rightarrow7$, $4\rightarrow3$",50}
+    }}
+
+    % Draw the SF
+    \slotframeMatrix{\sfcolors}{\sftext}{9}{2}{1.7}{0.3}{0}{}{0}
+
+    % Add surrounding stuff
+    \node[] at (0, 0.3) {Timeslot};
+    \node[] at (-1.4, -0.15) {Channel};
+
+    \pgfmathsetmacro{\layOneXStart}{\cellScaleX - \cellScaleX * 0.5}
+    \pgfmathsetmacro{\layOneXEnd}{\layOneXStart + 4 * \cellScaleX}
+    \pgfmathsetmacro{\layTwoXEnd}{\layOneXEnd + 4 * \cellScaleX}
+    \pgfmathsetmacro{\layHeightY}{0.5}
+    \pgfmathsetmacro{\sfHeightY}{1.0}
+    \pgfmathsetmacro{\tsNumHeightY}{0.3}
+
+    \node[] at (\cellScaleX * 1, \tsNumHeightY) {1-7};
+    \node[] at (\cellScaleX * 2, \tsNumHeightY) {8};
+    \node[] at (\cellScaleX * 3, \tsNumHeightY) {9};
+    \node[] at (\cellScaleX * 4, \tsNumHeightY) {10-50};
+    \node[] at (\cellScaleX * 5, \tsNumHeightY) {51-57};
+    \node[] at (\cellScaleX * 6, \tsNumHeightY) {58};
+    \node[] at (\cellScaleX * 7, \tsNumHeightY) {59};
+    \node[] at (\cellScaleX * 8, \tsNumHeightY) {60-101};
+
+    %    \draw[<->] (\layOneXStart , \sfHeightY) -- (\layTwoXEnd, \sfHeightY) node[midway, above] {Slotframe};
+    \draw[<->, >=stealth] (\layOneXStart , \layHeightY) -- (\layOneXEnd, \layHeightY) node[midway, above] {Layer 1};
+    \draw[<->, >=stealth] (\layOneXEnd, \layHeightY) -- (\layTwoXEnd, \layHeightY) node[midway, above] {Layer 2};
+
+    \end{tikzpicture}
+    \caption{Layered schedule for traffic from node 8 and 9 in Figure \ref{fig_linear9_topology}. Color denote from which node the traffic originated.}
+    \label{fig_layered_sched_8hop}
+\end{figure*}
+}
+
+
+\newcommand{\drawlonglinetopology}[1]{
+\begin{figure}[#1]
+    \centering
+    \usetikzlibrary{trees,arrows, backgrounds}
+    \begin{tikzpicture}[edge from parent/.style={draw,-latex}, edge from parent path={[<-](\tikzparentnode) -- (\tikzchildnode)}, , node distance=0.85cm]
+
+    \scriptsize
+    \tikzset{rank1/.style={circle, fill=\rankThreeColor, draw}}
+    \tikzset{rank2/.style={circle, fill=\rankTwoColor, draw}}
+    \tikzset{regular/.style={circle, fill=white, draw}}
+    \tikzset{txrange/.style={ellipse, draw, minimum height=0.8cm, minimum width=2.3cm, fill=green!80,opacity=.2}}
+    \tikzset{interference/.style={ellipse, draw, minimum height=1.2cm, minimum width=4cm, fill=gray!30, opacity=.2}}
+
+    \node [regular polygon, regular polygon sides=3, minimum size=0.1cm, draw, fill=gray!30, text width=0.4cm, inner sep=0pt, align=center] (sink) {1\\Sink}
+    child {node [regular, left of=sink, label={[label distance=0.1cm]90:2}] (1) {2}
+        child {node [regular, left of=1, label={[label distance=0.1cm]90:1}] (2) {3}
+                child {node [regular, left of=2, label={[label distance=0.1cm]90:2}] (3) {4}
+                        child {node [regular, fill=gray!20, left of=3, label={[label distance=0.1cm]90:1}] (4) {5}
+                                child { node [regular, left of=4, label={[label distance=0.1cm]90:2}] (5) {6}
+                                        child {node [regular, left of=5, label={[label distance=0.1cm]90:1}] (6) {7}
+                                            child {node [rank1, left of=6, label={[label distance=0.1cm]90:2}] (7) {8}
+                                                child {node [rank2, left of=7, label={[label distance=0.1cm]90:1}] (8) {9}}}}}}}}};
+    % Transmission and interference ranges
+    \begin{scope}[on background layer]
+        \node [txrange] at (-3.4,0) (9) {};
+        \node [interference] at (-3.4,0) (10) {};
+    \end{scope}
+
+     % Add surrounding stuff
+    \node[] at (-7.45, 0.48) {Layer};
+
+    \end{tikzpicture}
+    \caption{8-hop topology. TX- and interference-range in green and grey}
+    \label{fig_linear9_topology}
+\end{figure}
+}
+
+
+\newcommand{\drawSlotframeEscalatorIntuitive}[1]{
+\begin{figure}[#1]
+    \subfloat[Intuitive solution]{
+        \centering
+        \begin{tikzpicture}
+        \def\sfcolors{{%
+                {999,0,0,0,0,0,1,0,0,0,0,0,2},
+                {999,0,0,0,0,1,0,0,0,0,0,2,0},
+                {999,0,0,0,1,0,0,0,0,0,2,0,0},
+                {999,0,0,1,0,0,0,0,0,2,0,0,0},
+                {999,0,1,0,0,0,0,0,2,0,0,0,0},
+                {999,1,0,0,0,0,0,2,0,0,0,0,0}
+        }}
+
+        % Draw slotframe
+        \slotframeMatrix{\sfcolors}{}{13}{6}{0.3}{0.3}{1}{Rank of node}{1}
+        \end{tikzpicture}
+        \label{fig_intuitive_rank}
+    }%\hspace{1mm}
+    \subfloat[Escalator]{
+        \centering
+        \begin{tikzpicture}
+        % Matrix, first column is used for rank
+        \def\sfcolors{{%
+                {999,0,0,0,0,0,1,0,2,0,3},
+                {999,0,0,0,0,1,0,2,0,3,0},
+                {999,0,0,0,4,0,5,0,6,0,0},
+                {999,0,0,4,0,5,0,6,0,0,0},
+                {999,0,7,0,8,0,9,0,0,0,0},
+                {999,7,0,8,0,9,0,0,0,0,0}
+        }}
+
+        % Draw slotframe
+        \slotframeMatrix{\sfcolors}{}{11}{6}{0.3}{0.3}{1}{}{1}
+        \end{tikzpicture}
+        \label{fig_escalator_example}
+    }
+    \caption{Transmission opportunities. Colors denote from which node traffic originated. Pattern indicate channel.}
+\end{figure}
+}
+
+\newcommand{\drawsimpleTopSF}[1]{
+\begin{figure}[#1]
+    \centering
+    \usetikzlibrary{trees,arrows,backgrounds}
+
+    \begin{tikzpicture}
+    [auto=left, >=stealth, every node/.style={circle, scale=0.6, draw,-latex}]
+
+    \node [regular polygon, regular polygon sides=3, draw, minimum size=0.3cm, text width=0.6cm, inner sep=0pt, fill=gray!30, align=center] (Sink) at (6,0)  {1\\Sink};
+    \node (2)[fill=\rankOneColor] at (4,0)  {2};
+    \node (3)[fill=\rankTwoColor] at (2,0)  {3};
+    \node (4)[fill=\rankThreeColor] at (0,0)  {4};
+
+    \draw[very thick, \rankOneColor, ->] (2) -- (Sink);
+    \draw[very thick, \rankTwoColor, ->] (3) -- (2);
+    \draw[very thick, \rankThreeColor,->] (4) -- (3);
+    \end{tikzpicture}\hfill
+    \begin{tikzpicture}
+    % Matrix, first column is used for index
+    \def\sfcolors{{%
+            {0,0,3,0,0,0,3,0,0,0,3,0},
+            {1,0,0,0,1,0,0,0,1,0,0,0},
+            {0,0,0,0,0,0,0,0,0,0,0,0},
+            {0,2,0,0,0,2,0,0,0,2,0,0}
+    }}
+
+    % Draw the SF
+    \slotframeMatrix{\sfcolors}{}{12}{4}{0.5}{0.3}{0}{}{0}
+
+    % Add surrounding stuff
+    \pgfmathsetmacro{\sfXStart}{0 - 0.5 * \cellScaleX}
+    \pgfmathsetmacro{\sfXEnd}{\sfXStart + 4 * \cellScaleX}
+
+    \draw[thick, ->, >=stealth] (0 - \cellScaleX, \cellScaleY)  -- (0 - \cellScaleX + 2,\cellScaleY) node[midway, above] {Timeslot offset};
+    \draw[thick, ->, >=stealth] (0 - \cellScaleX, \cellScaleY) -- (0 - \cellScaleX, \cellScaleY - 5*\cellScaleY) node[rotate=90,midway, above] {Channel offset};
+
+    \draw[thick, <->, >=stealth] (\sfXStart, 0 - 4 * \cellScaleY) -- (\sfXEnd, 0 - 4 * \cellScaleY) node[midway, below] {Slotframe};
+
+    \draw[thick, <->, >=stealth] (\sfXStart + 7*\cellScaleX, 0 - 4 * \cellScaleY) -- (\sfXStart + 8*\cellScaleX, 0 - 4 * \cellScaleY) node[midway, below] {Timeslot};
+
+    \end{tikzpicture}
+    \caption{Simple wireless network topology with example TSCH schedule}
+    \label{fig_simpleTopAndSched}
+\end{figure}
+}
+
+
+\newcommand{\drawFunnellingTop}[1]{
+\begin{figure}[#1]
+    \centering
+    \usetikzlibrary{trees,arrows,positioning}
+    \begin{tikzpicture}[level distance=15mm, sibling distance=6mm, >=stealth, edge from parent/.style={draw,-latex}, scale=0.7, every node/.style={circle, scale=0.6, fill=gray!30, draw}, edge from parent path={[<-](\tikzparentnode) -- (\tikzchildnode)},]
+    \node [regular polygon,regular polygon sides=3, minimum size=0.3cm, text width=0.6cm, inner sep=0pt] (sink) {Sink}
+    child[grow=right] {node (q1) {6}
+        child {node (q2) {2}
+            child {node (q3) {1}}}
+        child {node (q5) {3}
+            child {node (q6) {2}
+                child {node (q11) {1}}}}}
+    child[grow=left] {node (q7) {4}
+        child {node (q8) {3}
+            child {node (q9) {1}}
+            child {node (q10) {1}}}};
+    \end{tikzpicture}
+    \caption{Funneling effect, number indicates cumulative offered traffic}
+    \label{fig_funneling_effect}
+\end{figure}
+}
