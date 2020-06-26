@@ -40,6 +40,9 @@
 %Industrial communication, 6TiSCH, Time-Slotted Channel Hopping (TSCH), Autonomous scheduling% Deterministic Networking,
 %\end{IEEEkeywords}
 
+\section{Introduction}
+Proposal for an area of investigation which might be applicable for a bachelor project or master thesis.
+
 \section{Background}
 \subsection{TSCH}
 The Time Slotted Channel Hopping (TSCH) medium access control has garnered significant attention in the wireless sensor network research community. It combines channel-hopping, to increase resilience against wireless fading events, with contention-free allocation of time-slots. It is selected as the MAC in IETFs ongoing work on 6TiSCH - an IPv6-enabled stack for industrial wireless low-power networks \cite{IETF6TiSCHTutorialVilajosana2019}.
@@ -49,14 +52,14 @@ The Time Slotted Channel Hopping (TSCH) medium access control has garnered signi
 
 Nodes in a TSCH network operate according to a schedule implemented as one or more \textit{slotframes}. These repeat over time and dictate if a node is allowed to transmit or receive. Figure \ref{fig_simpleTopAndSched} shows an example network with an accompanying schedule. Time is divided into timeslots on the horizontal axis, while the available channels are shown in the vertical. A \textit{cell} is defined by a pair of timeslot- and channel-offset coordinates, and it allows for transmitting or receiving one frame with an optional acknowledgment.
 
-Key in TSCH is the establishment and maintenance of the slotframe content, i.e. how cells are allocated among nodes in the network. This is achieved by a \textit{scheduler}, which may operate in a centralized, collaborative or autonomous fashion. With an autonomous scheduler, nodes create their schedules independently without any information exchanged between schedulers on the nodes.This simplifies the configuration, avoids signalling overhead, and increases the fault tolerance since no signalling is needed to utilize new links.
+Key in TSCH is the establishment and maintenance of the slotframe content, i.e. how cells are allocated among nodes in the network. This is achieved by a \textit{scheduler}, which may operate in a centralized, collaborative or autonomous fashion. With an autonomous scheduler, nodes create their schedules independently without any information exchanged between schedulers on the nodes.This simplifies the configuration, avoids signaling overhead, and increases the fault tolerance since no signaling is needed to utilize new links.
 
 The current state-of-the-art autonomous scheduler Orchestra \cite{OrchestraRobustMeshDuquennoy2015} lets nodes utilize their own and neighbor IDs to allocate cells. When setup in a contention-free configuration, Orchestra maps each node ID to a unique cell used by the given node to transmit. For nodes wanting to receive, they simply add a RX cell matching the transmitter ID. The coordination is obtained through a routing protocol such as RPL.
 
 \section{Problem statement}
 \drawFunnellingTop{htb}
 
-Typical autonomous schedulers statically assign a fixed amount of resources to each node and does not adapt to variations in traffic intensity. This leaves it vulnerable to e.g. applications with heterogeneous traffic intensity, differing link qualities yielding a varying demand for retransmissions, and convergecast applications where traffic intensity increases close to the destination, as illustrated in Figure \ref{fig_funneling_effect}.
+Typical autonomous schedulers statically assign a fixed amount of resources to each node and does not adapt to variations in traffic intensity. This leaves it vulnerable to reduced performance in e.g. applications with heterogeneous traffic intensity, scenarios with differing link qualities yielding a varying demand for retransmissions, and convergecast applications where a funneling effect increases traffic intensity close to the destination, as illustrated in Figure \ref{fig_funneling_effect}.
 
 \section{Related Work}
 A survey on autonomous scheduling in \cite{EmpiricalSurveyAutonomousElsts2020} lists three which focus on traffic adaptations: TESLA \cite{TESLATrafficAwareJeong2019}, PAAS \cite{ParameterizedslotschedulingJung2018} and e-TSCH-Orch \cite{AutonomoustrafficawareRekik2018}. However, all of these require exchange of information which 1) Increases complexity, making it more difficult for operator to understand the network operations, i.e. the "visibility problem" \cite{EmpiricalSurveyAutonomousElsts2020}, and 2)  introduces possibility for scheduler-convergence periods and de-synchronization (TODO confirm for the mentioned), thus reducing some of the key benefits of autonomous scheduling.
@@ -139,12 +142,8 @@ This leaves the possibility of multiple nodes having extra transmissions at the 
 
 Such synchronization can be avoided by adding time as an input when calculating the timeslot offset. Instead of the timeslot being scheduled according to node id alone, it would be set by node id + time (i.e. ASN). This causes every slotframe to be unique as shown in the bottom of Figure \ref{fig_slotframe_extra}. Such a technique is employed in the ALICE scheduler to avoid continuously overlapping cells. This may also be exploited to avoid synchronization in the channel calculation.\\
 
-All of these techniques in combination might be sufficient for a significant increase of performance in heterogeneous scenarios compared to e.g. vanilla Orchestra or ALICE.
-
-\subsection{Properties}
-This proposal is a fully autonomous approach, i.e. no additional information needs to be exchanged between nodes. It can in theory be applied to any scheduler but we currently consider only autonomous schedulers. It should also be noted that the essence of the proposal is for nodes to opportunistically grab resources. Any gained knowledge from an evaluation, and the proposal itself, is probably generic such that it is applicable to any other scheduling scheme which could accommodate opportunistic extra transmissions.
-
-The proposal involves an opportunistic addition of cells, thus the performance of these cells are probabilistic. The logical step discussed is therefore to apply it onto Orchestra or ALICE (both probabilistic), which would make it inline with PAAS, e-TSCH-Orch and TESLA (which are all based on Orchestra).% Thus the resulting scheduler would be aiming for class 4 \& 5-type and similar applications. Or in other words, "yet another scheduler", however, note there are only 3-4 others in this class (and \cite{EmpiricalSurveyAutonomousElsts2020} urges: "More work towards traffic adaptations is definitely possible and recommended.").
+%\subsection{Properties}
+This proposal is a fully autonomous approach, i.e. no additional information needs to be exchanged between nodes. It can in theory be applied to any scheduler. The proposal involves an opportunistic addition of cells, thus the performance of these cells are probabilistic. The logical step discussed is therefore to apply it onto Orchestra or ALICE (both probabilistic), which would make it inline with PAAS, e-TSCH-Orch and TESLA (which are all based on Orchestra).% Thus the resulting scheduler would be aiming for class 4 \& 5-type and similar applications. Or in other words, "yet another scheduler", however, note there are only 3-4 others in this class (and \cite{EmpiricalSurveyAutonomousElsts2020} urges: "More work towards traffic adaptations is definitely possible and recommended.").
 
 %\begin{figure}[htb]
 %    \centering
@@ -155,9 +154,18 @@ The proposal involves an opportunistic addition of cells, thus the performance o
 
 %Note that this would also not be limited to convergecast, but be applicable to any traffic pattern.
 
-The proposal should struggle more in dense networks where a node has many neighbors. In those scenarios a node's extra transmissions would have a larger chance of colliding with other nodes extra transmissions (the second challenge mentioned above). Additionally, nodes would have more children, which would leave less room for adding extra transmissions before meeting a RX cell in its schedule (the third challenge). However, it is also in these dense networks where the funneling effect is expected to be the weakest since the network is more shallow. On the contrary, in sparse networks, where the funneling is presumed worse, the mechanism should have equally improved conditions to function.
+%The proposal should struggle more in dense networks where a node has many neighbors. In those scenarios a node's extra transmissions would have a larger chance of colliding with other nodes extra transmissions (the second challenge mentioned above). Additionally, nodes would have more children, which would leave less room for adding extra transmissions before meeting a RX cell in its schedule (the third challenge). However, it is also in these dense networks where the funneling effect is expected to be the weakest since the network is more shallow. On the contrary, in sparse networks, where the funneling is presumed worse, the mechanism should have equally improved conditions to function.
 
+\section{Open questions}
+What are the key parameters influencing opportunistic transmissions in TSCH? Network density, traffic intensity, schedule, etc.?
 
+How does the proposal impact reliability and latency, vs. increased energy consumption? At which limits of the parameters does the proposal provide a benefit, and in which does it not. Or in other words, what is its applications? How does it perform in the scenarios treated by Orchestra/ALICE?
+
+What is the individual contribution of each of the three mechanisms in the proposal? Are there permutations of the channel selection mechanism which can increase performance?
+
+%What is the energy penalty, and how is it influenced by the changing parameters?
+
+Note that the essence of the proposal is for nodes to opportunistically grab resources. Any gained knowledge from an evaluation, and the proposal itself, is probably generic such that it is applicable to any other scheduling scheme which could accommodate opportunistic extra transmissions.
 
 % needed in second column of first page if using \IEEEpubid
 %\IEEEpubidadjcol
