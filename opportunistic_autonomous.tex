@@ -52,7 +52,7 @@ The Time Slotted Channel Hopping (TSCH) medium access control has garnered signi
 
 Nodes in a TSCH network operate according to a schedule implemented as one or more \textit{slotframes}. These repeat over time and dictate if a node is allowed to transmit or receive. Figure \ref{fig_simpleTopAndSched} shows an example network with an accompanying schedule. Time is divided into timeslots on the horizontal axis, while the available channels are shown in the vertical. A \textit{cell} is defined by a pair of timeslot- and channel-offset coordinates, and it allows for transmitting or receiving one frame with an optional acknowledgment.
 
-Key in TSCH is the establishment and maintenance of the slotframe content, i.e. how cells are allocated among nodes in the network. This is achieved by a \textit{scheduler}, which may operate in a centralized, collaborative or autonomous fashion. With an autonomous scheduler, nodes create their schedules independently without any information exchanged between schedulers on the nodes.This simplifies the configuration, avoids signaling overhead, and increases the fault tolerance since no signaling is needed to utilize new links.
+Key in TSCH is the establishment and maintenance of the slotframe content, i.e. how cells are allocated among nodes in the network. This is achieved by a \textit{scheduler}, which may operate in a centralized, collaborative or autonomous fashion. With an autonomous scheduler, nodes create their schedules independently without any information exchanged between schedulers on the nodes. This simplifies the configuration, avoids signaling overhead, and increases the fault tolerance since no signaling is needed to utilize new links.
 
 The current state-of-the-art autonomous scheduler Orchestra \cite{OrchestraRobustMeshDuquennoy2015} lets nodes utilize their own and neighbor IDs to allocate cells. When setup in a contention-free configuration, Orchestra maps each node ID to a unique cell used by the given node to transmit. For nodes wanting to receive, they simply add a RX cell matching the transmitter ID. The coordination is obtained through a routing protocol such as RPL.
 
@@ -62,88 +62,64 @@ The current state-of-the-art autonomous scheduler Orchestra \cite{OrchestraRobus
 Typical autonomous schedulers statically assign a fixed amount of resources to each node and does not adapt to variations in traffic intensity. This leaves it vulnerable to reduced performance in e.g. applications with heterogeneous traffic intensity, scenarios with differing link qualities yielding a varying demand for retransmissions, and convergecast applications where a funneling effect increases traffic intensity close to the destination, as illustrated in Figure \ref{fig_funneling_effect}.
 
 \section{Related Work}
-A survey on autonomous scheduling in \cite{EmpiricalSurveyAutonomousElsts2020} lists three which focus on traffic adaptations: TESLA \cite{TESLATrafficAwareJeong2019}, PAAS \cite{ParameterizedslotschedulingJung2018} and e-TSCH-Orch \cite{AutonomoustrafficawareRekik2018}. However, all of these require exchange of information which 1) Increases complexity, making it more difficult for operator to understand the network operations, i.e. the "visibility problem" \cite{EmpiricalSurveyAutonomousElsts2020}, and 2)  introduces possibility for scheduler-convergence periods and de-synchronization (TODO confirm for the mentioned), thus reducing some of the key benefits of autonomous scheduling.
+A survey on autonomous scheduling in \cite{EmpiricalSurveyAutonomousElsts2020} lists three which focus on traffic adaptations: TESLA \cite{TESLATrafficAwareJeong2019}, PAAS \cite{ParameterizedslotschedulingJung2018} and e-TSCH-Orch \cite{AutonomoustrafficawareRekik2018}. However, all of these require exchange of information which: 1) Adds overhead for link establishment, which introduces convergence periods, and 2) Increases complexity, making it more difficult for operator to understand the network operations, i.e. the "visibility problem" \cite{EmpiricalSurveyAutonomousElsts2020}, thus reducing some of the key benefits of autonomous scheduling.
 
 \section{Proposal}
-\begin{figure}[hbt]
+\begin{figure*}[hbt]
     \centering
 
     \begin{tikzpicture}
     \def\sfcolors{{%
-            {999,1,1,1,1,1,50},
-            {999,0,1,1,1,1,50},
-            {999,0,0,1,1,1,50},
-            {999,0,0,0,1,1,50},
-            {999,0,0,0,0,1,50}
+            {999,1,1,1,1,1,50,1,1,1,1,1,50},
+            {999,0,1,1,1,1,50,0,1,1,1,1,50},
+            {999,0,0,1,1,1,50,0,0,1,1,1,50},
+            {999,0,0,0,1,1,50,0,0,0,1,1,50},
+            {999,0,0,0,0,1,50,0,0,0,0,1,50}
     }}
 
     \def\sftext{{%
-            {2,"Node 1", "Node 2", "Node 3", "Node 4", "Node 5", },
-            {3, , "\textit{Node 1}", "\textit{Node 1}", "\textit{Node 1}", "\textit{Node 1}",},
-            {4, , , "\textit{Node 2}", "\textit{Node 2}", "\textit{Node 2}",},
-            {5, , , , "\textit{Node 3}", "\textit{Node 3}", },
-            {6, , , , , "\textit{Node 4}",}
+            {2, "Node 1", "Node 2", "Node 3", "Node 4", "Node 5", ,"Node 3", "Node 1", "Node 4", "Node 5", "Node 2", },
+            {3, , "\textit{Node 1}", "\textit{Node 1}", "\textit{Node 1}", "\textit{Node 1}", , , "\textit{Node 3}", "\textit{Node 3}", "\textit{Node 3}", "\textit{Node 3}", },
+            {4, , , "\textit{Node 2}", "\textit{Node 2}", "\textit{Node 2}", , , , "\textit{Node 1}", "\textit{Node 1}", "\textit{Node 1}",},
+            {5, , , , "\textit{Node 3}", "\textit{Node 3}", , , , , "\textit{Node 4}", "\textit{Node 4}",},
+            {6, , , , , "\textit{Node 4}", , , , , , "\textit{Node 5}",}
     }}
 
     % Draw the SF
-    \slotframeMatrix{\sfcolors}{\sftext}{7}{5}{1.0}{0.5}{0}{}{0}
+    \slotframeMatrix{\sfcolors}{\sftext}{13}{5}{1.0}{0.5}{0}{}{0}
 
     % Add surrounding stuff
     \node[] at (0, 0.5) {Channel};
-    \node[] at (-1.1, 0) {Orchestra};
-    \node[] at (-1.1, -1.2)[rotate=90] {Possible extra TX};
+    \node[] at (-1.4, 0) {Orchestra-based};
+    \node[] at (-1.1, -1.2)[rotate=90] {For extra TX};
+    \draw[thick, <->, >=stealth] (0.5, 0.5) -- (6.5, 0.5) node[midway, above] {Slotframe n};
+        \draw[thick, <->, >=stealth] (6.5, 0.5) -- (12.5, 0.5) node[midway, above] {Slotframe n+1};
     \end{tikzpicture}
 
-    \begin{tikzpicture}
-    \def\sfcolors{{%
-            {999,1,1,1,1,1,50},
-            {999,0,1,1,1,1,50},
-            {999,0,0,1,1,1,50},
-            {999,0,0,0,1,1,50},
-            {999,0,0,0,0,1,50}
-    }}
-
-    \def\sftext{{%
-            {2,"Node 3", "Node 1", "Node 4", "Node 5", "Node 2", },
-            {3, , "\textit{Node 3}", "\textit{Node 3}", "\textit{Node 3}", "\textit{Node 3}",},
-            {4, , , "\textit{Node 1}", "\textit{Node 1}", "\textit{Node 1}",},
-            {5, , , , "\textit{Node 4}", "\textit{Node 4}", },
-            {6, , , , , "\textit{Node 5}",}
-    }}
-
-    % Draw the SF
-    \slotframeMatrix{\sfcolors}{\sftext}{7}{5}{1.0}{0.5}{0}{}{0}
-
-    % Add surrounding stuff
-    \node[] at (0, 0.5) {Channel};
-    \node[] at (-1.1, 0) {Orchestra};
-    \node[] at (-1.1, -1.2)[rotate=90] {Possible extra TX};
-    \end{tikzpicture}
-
-    \caption{Orchestra application slotframe with potential extra transmissions in italics. Slotframe at ASN \textit{n} on top, slotframe at ASN $n + SF_{length}$ at bottom}
+    \caption{Orchestra-based application slotframe with additional cells for extra transmissions in \textit{italics}.}
     \label{fig_slotframe_extra}
-\end{figure}
+\end{figure*}
 
-The essence of the proposal is for nodes to opportunistically try extra transmissions when needed. I.e. if node 2 is scheduled to transmit in timeslot 2, it has the option to also utilize timeslot 3 and onwards for extra transmissions until its queue is empty. An overview schedule can be seen in Figure \ref{fig_slotframe_extra}. This immediately creates three key challenges which we will address with a novel combination of solutions:
+The essence of the proposal is for node to opportunistically try extra transmissions after their regular transmission. I.e. if node 2 is scheduled to transmit in a cell at timeslot 2, it may also utilize timeslot 3 and onwards for extra transmissions until its queue is empty. An overview schedule can be seen in Figure \ref{fig_slotframe_extra}. This immediately creates three key challenges which we will address with a novel combination of solutions:
 
-\textit{Firstly}, how does the receiving node know that its neighbor want's to transmit in more timeslots? Here the receiver can exploit two signals:
+\textit{Firstly}, how does the receiving node know that its neighbor want's to utilize its extra cells or not? Here the receiver can exploit two inputs:
 \begin{enumerate}
-    \item The transmitting node has set the Frame Pending bit in the 802.15.4 header, indicating the node has additional packets in its queue. This behavior is according to the standard.
+    \item The transmitting node set the Frame Pending bit in the 802.15.4 header, indicating it has additional packets in its queue. This behavior is according to the standard.
     \item The receiver does not receive a valid packet, yet senses there is energy on the channel. This indicates a possible failed transmission attempt which induces a retransmission. (see \cite{EnergyEfficientLinkCena2020}).
 \end{enumerate}
 
-As long as any of these signals are true, the receiver should listen on the next timeslot. This should keep idle listening to a minimum while allowing a neighbor to transmit an arbitrary amount of additional packets. If the radio is not capable of reporting energy-levels, the Frame Pending bit can still be used alone. This would lead to the extra transmissions only being employed for queued packets, and not retransmission for failed attempts.
+As long as any of these signals are true, the receiver should listen on the next timeslot. This should keep idle listening to a minimum while allowing a neighbor to transmit an arbitrary amount of additional packets.% If the radio is not capable of reporting energy-levels, the Frame Pending bit can still be used alone. This would lead to the extra transmissions only being employed for queued packets, and not retransmissions.
 
-\textit{Secondly}, since the extra transmissions are decided autonomously, there is a chance that the they will interfere with the transmissions of other nodes. To avoid this we can exploit the low band occupancy of Orchestra (only channels 0-2 are by default used) and utilize the remaining channels (or a sub-set) for extra transmissions. Thus there is no increased contention for the regularly scheduled cells. Notice how the additional transmissions in Figure \ref{fig_slotframe_extra} are in a differing channel.
+\textit{Secondly}, the cells utilized for the extra transmissions may collide with cells already in the schedule of either the transmitter or the receiver. Consider for example if node 2 transmits towards node 3 at timeslot 2, and wants an extra transmission in timeslot 3. However, if node 3 has its own regular transmission cell in timeslot 3, it would not be able to listen for the extra transmission.
 
-This leaves the possibility of multiple nodes having extra transmissions at the same time, and also selecting the same channel, all the while being in interference range of each other. It might be that this can be mitigated by tying the channel selection to the rank, e.g. such that nodes on neighboring ranks does not interfere. However, that would increase the probability of interference within a rank. This is still an open item - although it is not unlikely that a "random" selection based on node ID yields sufficient performance (probability of collisions would depend on traffic pattern and profile, network density, and number of channels employed).
+Such synchronization can be avoided by adding time as an input when calculating the timeslot offset. Instead of the timeslot being scheduled according to node id alone, it would be set by node id + time (i.e. ASN (absolute slot number, a global ever-increasing timeslot counter starting at 0 when network is deployed)). This causes every slotframe to be unique as shown in the bottom of Figure \ref{fig_slotframe_extra}. Such a technique is employed in the ALICE \cite{ALICEAutonomousLinkKim2019} scheduler to avoid continuously overlapping cells. This may also be exploited to avoid synchronization in the channel calculation.
 
-\textit{Thirdly}, the cells utilized for the extra transmissions may also collide with cells already in the schedule of either the transmitter or the receiver. Consider for example if node 2 transmits towards node 3 at timeslot 2, and wants an extra transmission in timeslot 3. However, if node 3 has its own regular transmission cell in timeslot 3, it would not be able to listen for the extra transmission.
+\textit{Thirdly}, since the extra transmissions are decided autonomously, there is a chance that the they will interfere with the transmissions of other nodes. To avoid this we can exploit the low band occupancy of Orchestra (only channels 0-2 are by default used): Any cells intended for extra transmissions will utilize channel 3-15 (or a sub-set). Thus there is no increased contention for the regularly scheduled cells. Notice how the extra transmissions cells in Figure \ref{fig_slotframe_extra} are in separate channels.
 
-Such synchronization can be avoided by adding time as an input when calculating the timeslot offset. Instead of the timeslot being scheduled according to node id alone, it would be set by node id + time (i.e. ASN). This causes every slotframe to be unique as shown in the bottom of Figure \ref{fig_slotframe_extra}. Such a technique is employed in the ALICE scheduler to avoid continuously overlapping cells. This may also be exploited to avoid synchronization in the channel calculation.\\
+There is however still a possibility of multiple nodes having extra transmissions at the same time, and also selecting the same channel, all the while being in interference range of each other. The solution to this problem is an open item: As above, time/ASN could be used as input into the channel selection algorithm, to avoid persistent synchronization and collisions between nodes. Another option could be to tie the channel selection to the rank, e.g. such that nodes on neighboring ranks does not interfere. However, that would increase the probability of interference within a rank. Lastly, it could be that selecting based solely on node ID yields sufficient performance (probability of collisions would depend on traffic pattern and profile, network density, and number of channels employed).\\
 
 %\subsection{Properties}
-This proposal is a fully autonomous approach, i.e. no additional information needs to be exchanged between nodes. It can in theory be applied to any scheduler. The proposal involves an opportunistic addition of cells, thus the performance of these cells are probabilistic. The logical step discussed is therefore to apply it onto Orchestra or ALICE (both probabilistic), which would make it inline with PAAS, e-TSCH-Orch and TESLA (which are all based on Orchestra).% Thus the resulting scheduler would be aiming for class 4 \& 5-type and similar applications. Or in other words, "yet another scheduler", however, note there are only 3-4 others in this class (and \cite{EmpiricalSurveyAutonomousElsts2020} urges: "More work towards traffic adaptations is definitely possible and recommended.").
+This proposal is a fully autonomous approach, i.e. no additional information needs to be exchanged between nodes. It can in theory be applied to any scheduler. The proposal involves an opportunistic addition of cells, thus the performance of these cells are probabilistic. The logical step is therefore to apply it onto Orchestra or ALICE, which would make it inline with PAAS, e-TSCH-Orch and TESLA (which are all based on Orchestra).% Thus the resulting scheduler would be aiming for class 4 \& 5-type and similar applications. Or in other words, "yet another scheduler", however, note there are only 3-4 others in this class (and \cite{EmpiricalSurveyAutonomousElsts2020} urges: "More work towards traffic adaptations is definitely possible and recommended.").
 
 %\begin{figure}[htb]
 %    \centering
@@ -157,13 +133,11 @@ This proposal is a fully autonomous approach, i.e. no additional information nee
 %The proposal should struggle more in dense networks where a node has many neighbors. In those scenarios a node's extra transmissions would have a larger chance of colliding with other nodes extra transmissions (the second challenge mentioned above). Additionally, nodes would have more children, which would leave less room for adding extra transmissions before meeting a RX cell in its schedule (the third challenge). However, it is also in these dense networks where the funneling effect is expected to be the weakest since the network is more shallow. On the contrary, in sparse networks, where the funneling is presumed worse, the mechanism should have equally improved conditions to function.
 
 \section{Open questions}
-What are the key parameters influencing opportunistic transmissions in TSCH? Network density, traffic intensity, schedule, etc.?
+Which channel selection algorithm should be utilized?
 
-How does the proposal impact reliability and latency, vs. increased energy consumption? At which limits of the parameters does the proposal provide a benefit, and in which does it not. Or in other words, what is its applications? How does it perform in the scenarios treated by Orchestra/ALICE?
+What is the individual contribution of each of the three mechanisms in the proposal?
 
-What is the individual contribution of each of the three mechanisms in the proposal? Are there permutations of the channel selection mechanism which can increase performance?
-
-%What is the energy penalty, and how is it influenced by the changing parameters?
+How does the proposal impact reliability and latency, vs. increased energy consumption? At which limits of the parameters (network density, traffic intensity, etc.) does the proposal provide a benefit, and in which does it not. Or in other words, what are its applications? How does it perform in the scenarios treated by Orchestra/ALICE?
 
 Note that the essence of the proposal is for nodes to opportunistically grab resources. Any gained knowledge from an evaluation, and the proposal itself, is probably generic such that it is applicable to any other scheduling scheme which could accommodate opportunistic extra transmissions.
 
